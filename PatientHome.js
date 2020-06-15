@@ -33,6 +33,16 @@ const dataRemote = {
       patient: 'su kiang chiat',
     }
   ],
+  chats: [
+    {user: 'A', message: 'Doing work', date: '2018-06-01'},
+    {user: 'B', message: 'Doing work', date: '2019-06-01'}, 
+    {user: 'A', message: 'Doing work', date: '2020-06-01'}, 
+  ],
+  consultationHours: [
+    {date: '2018-06-01', doctor: 'Dr.A', hours: 1.5},
+    {date: '2018-06-01', doctor: 'Dr.A', hours: 3.5},
+    {date: '2018-06-01', doctor: 'Dr.A', hours: 1.5},
+  ],
   recentPatients: [{
     name: 'Sam Sam',
     image: '',
@@ -109,13 +119,26 @@ export default function PatientHome() {
         </div>
         <div className="p-1">
           <div className=" p-1 tile lighten-2" ><h6>Consultation History</h6>
-           Chat 
-      Suggestions
+           <table style={{overflow: 'auto'}}>
+            <tr><th><input type="date" /></th><th>User</th><th>Chat Suggestions</th></tr>
+            {dataRemote.chats.map(chat => (
+              <tr><td>{chat.date}</td><td>{chat.user}</td><td>{chat.message}</td></tr>
+            ))}
+           </table>
+      
           </div>
         </div>
         <div className="p-1">
-          <div className=" p-1 tile lighten-2" ><h6>Consultation Hours Log</h6>
-           
+          <div className=" p-1 tile lighten-2" ><h6>Past Consultations</h6>
+              <div className="d-flex">
+              {dataRemote.consultationHours.map(conslt => (
+                <div className="flex-column m-1 grey lighten-4 p-2 shadow-sm">
+                  <div className="smallCal"><small>{conslt.date}</small></div>
+                  <div className="smallCal">{conslt.doctor}</div>
+                  <div className="smallCal">{conslt.hours}</div>
+                </div>
+              ))}
+              </div>
           </div>
         </div>
     

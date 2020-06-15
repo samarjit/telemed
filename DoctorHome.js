@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import './DoctorHome.scss';
 import dayjs from 'dayjs';
 import {formatDuration, getHashCode, intToHSL} from './util';
@@ -34,6 +34,9 @@ const dataRemote = {
       patient: 'su kiang chiat',
     }
   ],
+  specialities: [
+    "Cardio", "covid-19", "ENT"
+  ],
   recentPatients: [{
     name: 'Sam Sam',
     image: '',
@@ -46,11 +49,21 @@ const dataRemote = {
 };
 
 export default function DoctorHome() {
+  const txtSpeciality = useRef();
   const [data, setData] = useState(dataRemote);
   useEffect(() => {
     
      
   }, []);
+  function addSpeciality() {
+    dataRemote.specialities.push(txtSpeciality.current.value);
+    setData(Object.assign({}, dataRemote));
+    txtSpeciality.current.value = '';
+  }
+  function removeSpeciality(e) {
+    dataRemote.specialities.splice(e,1);
+    setData(Object.assign({}, dataRemote));
+  }
   return (
     <div className="container-fliud">
       <div className="row row-cols-1">
@@ -118,6 +131,20 @@ export default function DoctorHome() {
         </div>
         <div className="p-1">
           <div className=" p-1 tile lighten-2" ><h6>Add/Edit speciality </h6>
+            <div className="d-flex justify-content-between">
+             
+            <input type="text" className="smallInput m-1" id="txtSpeciality" placeholder="Speciality" ref={txtSpeciality}/> 
+            <button type="button" className="btn-small" onClick={(e) => addSpeciality()}>Add</button></div>
+            <div className="">
+              {dataRemote.specialities.map((spl, key) => (
+                <div className="m-2 p-1 rounded-lg specialityLabel float-left blue lighten-4">
+                  {spl}
+                  <button className="close ml-2" type="submit" onClick={(e) => removeSpeciality(key)}>
+                  <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         <div className="p-1">

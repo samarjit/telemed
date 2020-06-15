@@ -28,7 +28,9 @@ background: linear-gradient(0deg, darken($color-primary,10) 0%,$color-primary 2%
 .lh-3 {
   line-height: 3rem;
 }
-
+.smallInput {
+  height: 2rem !important;
+}
 .userTileGroup {
   .userTile {
     display: flex;

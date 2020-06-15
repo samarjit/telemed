@@ -23,13 +23,13 @@ class App extends Component {
     super();
     this.state = {
       name: 'React',
-      loggedIn: false
+      loggedIn: true
     };
     
   }
   componentDidMount() {
     if (!this.state.loggedIn) {
-      location.href='#/lander';
+      // location.href='#/lander';
     }
     loginStore.subscribe(() => {
       this.setState({loggedIn: loginStore.getState().loggedIn}); 
