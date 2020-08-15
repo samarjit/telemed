@@ -1,0 +1,67 @@
+html,body {
+  margin: 0px;
+  padding: 0;
+}
+/* @import url('~@fontawesome/fontawesome-free/css/all.css'); */
+
+.chat-container {
+  font-family: Lato;
+  height: 100%;
+  width: 100%;
+}
+.message-list {
+  padding: 2px 5px 20px;
+  margin-bottom: 70px;
+}
+.left {
+  display: flex;
+  flex-basis: 080%;
+  width: 80%;
+  padding: 3px;
+}
+div.user {
+  margin: 0 3px 0px;
+  flex-shrink: 0;
+}
+.letterCircle {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 50%;
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 18px;
+    /* border: 2px solid #666; */
+}
+.left aside {
+  padding: 5px;
+  background-color: var(--cyan);
+  border-radius: 0px 7px 7px 7px
+}
+.right {
+  padding: 3px;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: row-reverse
+}
+.right aside {
+  padding: 5px;
+  background-color: var(--teal);
+  border-radius: 7px 0 7px 7px
+}
+#chat-form {
+  position: fixed;
+  width: 100%;
+  bottom: 0px;
+  padding: 3px;
+  justify-content: stretch;
+   
+}
+#chat-form textarea {
+
+}
+#chat-form button {
+}
+.rotate-45 {
+  transform: rotate(-45deg)
+}

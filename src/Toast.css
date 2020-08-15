@@ -1,0 +1,31 @@
+@keyframes slide {
+  0% {
+    left: 0;
+  }
+  20% {
+    left: 20%;
+  }
+  40% {
+    left: 40%;
+  }
+  60% {
+    left: 60%;
+  }
+  80% {
+    left: 80%;
+  }
+  100% {
+    left: 100%;
+    overflow: hidden;
+    opacity: 0;
+    display: none;
+    visibility: hidden;
+    transform: translateX(100px)
+  }
+  
+}
+.slideout {
+transition: transform 200ms ease;
+/* animation: slide 5s linear forwards; */
+transform: translateX(200px)
+}

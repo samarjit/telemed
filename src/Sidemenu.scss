@@ -1,0 +1,45 @@
+.sidenav {
+  max-width: 250px;
+  .user-view {
+    text-align: center;
+    a {
+      display: flex;
+      font-size: 0.8em;
+      padding: 0;
+    }
+    background-color: orange;
+    padding: 20px 20px 5px;
+    i {
+      font-size: 70px;
+    } 
+  }
+  li {
+    > a {
+      display: block;
+      padding: 10px;
+    }
+    margin: 1px;
+  }
+  list-style: none;
+  a {
+    color: rgb(20, 19, 19);
+    text-decoration: none;
+  }
+  li:hover {
+    background-color: rgb(243, 243, 243);
+  }
+
+
+}
+.sidenav-trigger {
+  background: none;
+  border: none;
+  color: white;
+}
+.sidenav-trigger:focus {
+  background: none;
+  border: none;
+}
+.sidenav.menu-open {
+  transition: opacity 100s ease-out, transform 100ms;
+}

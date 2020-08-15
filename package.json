@@ -1,5 +1,5 @@
 {
-  "name": "react-temp",
+  "name": "react-telemed",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
@@ -21,9 +21,23 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "babel": "babel src -d dist",
+    "lint": "eslint src --ext .jsx --ext .js",
+    "dev": "webpack-dev-server "
   },
   "devDependencies": {
-    "react-scripts": "latest"
+    "@babel/core": "^7.11.1",
+    "@babel/preset-env": "^7.11.0",
+    "@babel/preset-react": "^7.10.4",
+    "babel-loader": "^8.1.0",
+    "css-loader": "^4.2.1",
+    "node-sass": "^4.14.1",
+    "sass-loader": "^9.0.3",
+    "scss-loader": "0.0.1",
+    "style-loader": "^1.2.1",
+    "webpack": "^5.0.0-beta.26",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
   }
 }
