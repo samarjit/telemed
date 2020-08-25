@@ -1,11 +1,11 @@
-import React, {Component, useEffect, useRef} from 'react';
+import React, { Component, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery';
-import useEventListener from './useEventListener';
+import useEventListener from './util/useEventListener';
 
-export default function Swipedetect (props) {
+export default function Swipedetect(props) {
 
-  function handleswipe(swipedir, e){
+  function handleswipe(swipedir, e) {
     console.log('swipe detected:', swipedir);
     props.onSwipeRight(e);
   }
@@ -18,16 +18,16 @@ export default function Swipedetect (props) {
   useEffect(() => {
     const div = innerRef.current;
     console.log('rerender Dummy', props.dataId);
-      $(div).on('click', 'button', handleswipe)
-    return () => { 
+    $(div).on('click', 'button', handleswipe)
+    return () => {
       $(div).off('click', 'button', handleswipe)
     }
-  },[props.onSwipeRight]);
+  }, [props.onSwipeRight]);
 
-return <div
-    className = {props.className}  ref={innerRef} 
-    >
-    <button  type="button" >Close</button>
+  return <div
+    className={props.className} ref={innerRef}
+  >
+    <button type="button" >Close</button>
     {props.children}
-    </div>;
+  </div>;
 }

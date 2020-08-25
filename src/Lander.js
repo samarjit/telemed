@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { login, logout } from './reducer/loginReducer';
+import httpClient from './util/http-client';
 
 import M from 'materialize-css';
 // import $ from 'jquery';
@@ -69,9 +70,24 @@ export default function () {
   }
 
   function doLogin() {
-    login();
-  }
+    const username = document.querySelector('.email').value;
+    const password = document.querySelector('.password').value;
+    httpClient.post('/api/auth/login', { username, password })
+      .then((res) => {
+        login();
+        // getReduxStore().dispatch({ type: 'LOGIN_SUCCESS', payload: res.data.profile });
+        // history.push('/home');
+      })
+      .catch((err) => {
+        if (err.response && err.response.data) {
+          this.setState({ error: err.response.data.reason });
+        }
+      });
 
+  }
+  function doSignup() {
+
+  }
   return (
     <div>
       <div className="grey lighten-2 col banner justify-content-center align-items-center">
@@ -124,7 +140,7 @@ export default function () {
                 <input type="password" id="retypepasswd" />
               </div>
 
-              <button type="button" className="btn" onClick={() => doLogin()}>Sign Up</button>
+              <button type="button" className="btn" onClick={() => doSignup()}>Sign Up</button>
             </div>
           </article>
         }
@@ -135,11 +151,11 @@ export default function () {
               <div class="col s12">
                 <div class="input-field col">
                   <label for="email_inline">Email</label>
-                  <input id="email_inline" type="email" class="validate" />
+                  <input id="email_inline" type="email" class="email validate" />
                 </div>
                 <div class="input-field col">
                   <label for="passwd2">Password</label>
-                  <input id="passwd2" type="password" class="validate" />
+                  <input id="passwd2" type="password" class="password validate" />
 
                 </div>
                 <button type="button" className="btn" onClick={() => doLogin()}>Login</button>

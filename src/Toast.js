@@ -6,7 +6,7 @@ import Swipedetect from './Swipedetect';
 // import Swipedetect from 'react-easy-swipe';
 import { Swipeable } from 'react-swipeable';
 import './Toast.css';
-import ev from './event';
+import ev from './util/event';
 
 const sample = `<div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-header">
