@@ -43,7 +43,7 @@ const successHandler = (response) => {
 
 const axiosInstance = axios.create({
   withCredentials: true,
-  baseURL: 'https://192.168.254.38:3000/'
+  baseURL: 'https://remotedoc.herokuapp.com/', //'https://192.168.254.38:3000/'
 });
 
 // Add interceptors
