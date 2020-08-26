@@ -10,6 +10,10 @@ export default function () {
   const sidebar = useRef();
   const dragTarget = useRef();
   const sidenavOverlay = useRef();
+
+  // const signPassRef = useRef();
+  // const retypePassRef = useRef();
+
   const [isOpenMenu, setIsOpenMenu] = useState(false);
   const [open, setOpen] = useState(false);
   const [loginOrSignup, setLoginOrSignup] = useState('');
@@ -59,10 +63,21 @@ export default function () {
     // // dragTarget.current.on('touchmove', _onDrag)
     // // dragTarget.current.on('touchstop', _onDragStop)
 
-    () => {
+    
+    return () => {
 
     }
   }, []);
+
+  function passwordCheck() {
+    const password = document.querySelector('.password').value;
+    const repassword = document.querySelector('#retypepasswd').value;
+    if (password !== repassword){
+      document.querySelector('.error_retypepasswd').innerHTML = 'passwords do not match';
+    } else{
+      document.querySelector('.error_retypepasswd').innerHTML = '';
+    }
+  }
 
   function menuClicked(e) {
     // console.log(e.target)
@@ -70,10 +85,12 @@ export default function () {
   }
 
   function doLogin() {
-    const username = document.querySelector('.email').value;
+    const username = document.querySelector('.loginEmail').value;
     const password = document.querySelector('.password').value;
-    httpClient.post('/api/auth/login', { username, password })
+    console.log('posting user', username, password)
+    httpClient.post('/auth/login', { username, password })
       .then((res) => {
+        console.log('res', res)
         login();
         // getReduxStore().dispatch({ type: 'LOGIN_SUCCESS', payload: res.data.profile });
         // history.push('/home');
@@ -86,7 +103,22 @@ export default function () {
 
   }
   function doSignup() {
-
+    const username = document.querySelector('.loginEmail').value;
+    const password = document.querySelector('.password').value;
+    const repassword = document.querySelector('#retypepasswd').value;
+    if (password === repassword){
+       httpClient.post('/auth/register', { 
+         username, password,
+       }).then((data) => {
+         console.log('signup res', data);
+         login();
+       }).catch((err) => {
+        if (err.response && err.response.data) {
+          this.setState({ error: err.response.data.reason });
+        }
+      });
+    }
+    console.log(username, password)
   }
   return (
     <div>
@@ -124,20 +156,21 @@ export default function () {
             <div className=" ">
               <div class="input-field col s6">
                 <label className=" " for="userid" >User Id</label>
-                <input type="email" name="userid" id="userid" />
+                <input type="email" name="userid" id="userid" className="loginEmail"/>
               </div>
               <div class="input-field col s6">
                 <label for="fullName" className=" " >Full Name</label>
-                <input type="text" name="Full Name" id="fullName" />
+                <input type="text" name="Full Name" id="fullName" className="fullName"/>
               </div>
               <div class="input-field col s6">
                 <label for="passwd">Password</label>
-                <input type="password" id="passwd" />
+                <input type="password" id="passwd" className="password" onKeyUp={()=> passwordCheck()}/>
               </div>
 
               <div class="input-field col">
                 <label for="retypepasswd">Retype Password</label>
-                <input type="password" id="retypepasswd" />
+                <input type="password" id="retypepasswd" onKeyUp={()=> passwordCheck()} />
+                <span className="error error_retypepasswd" ></span>
               </div>
 
               <button type="button" className="btn" onClick={() => doSignup()}>Sign Up</button>
@@ -151,11 +184,11 @@ export default function () {
               <div class="col s12">
                 <div class="input-field col">
                   <label for="email_inline">Email</label>
-                  <input id="email_inline" type="email" class="email validate" />
+                  <input id="email_inline" type="email" className="loginEmail validate" />
                 </div>
                 <div class="input-field col">
                   <label for="passwd2">Password</label>
-                  <input id="passwd2" type="password" class="password validate" />
+                  <input id="passwd2" type="password" className="password validate" />
 
                 </div>
                 <button type="button" className="btn" onClick={() => doLogin()}>Login</button>
