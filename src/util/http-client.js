@@ -41,7 +41,7 @@ const successHandler = (response) => {
 
 const axiosInstance = axios.create({
   withCredentials: true,
-  baseURL: '/'
+  baseURL: 'https://remotedoc.herokuapp.com/'
 });
 
 // Add interceptors
@@ -53,5 +53,6 @@ axiosInstance.interceptors.response.use(
   (response) => successHandler(response),
   (error) => errorHandler(error)
 );
+
 
 export default axiosInstance;
