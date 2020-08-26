@@ -2,6 +2,7 @@ import axios from 'axios';
 import VanillaToasts from 'vanillatoasts';
 import 'vanillatoasts/vanillatoasts.css';
 // import history from './history';
+import { redirectLogout } from '../reducer/loginReducer';
 
 const TIMEOUT = 4000;
 const isHandlerEnabled = (config = {}) => (!(config.hasOwnProperty('handlerEnabled') && !config.handlerEnabled));
@@ -25,7 +26,8 @@ const errorHandler = (error) => {
     });
     if (error && error.response.status === 401) {
       // history.push('/login');
-      location.href = '/login'
+      // location.href = '#/login'
+      redirectLogout();
     }
   }
   // eslint-disable-next-line prefer-promise-reject-errors
@@ -41,7 +43,7 @@ const successHandler = (response) => {
 
 const axiosInstance = axios.create({
   withCredentials: true,
-  baseURL: 'https://remotedoc.herokuapp.com/'
+  baseURL: 'https://192.168.254.38:3000/'
 });
 
 // Add interceptors
