@@ -41,7 +41,7 @@ const successHandler = (response) => {
 
 const axiosInstance = axios.create({
   withCredentials: true,
-  baseURL: 'https://remotedoc.herokuapp.com/'
+  baseURL: process.env.NODE_ENV === 'development' ? 'https://localhost:3000/' : 'https://remotedoc.herokuapp.com/',
 });
 
 // Add interceptors

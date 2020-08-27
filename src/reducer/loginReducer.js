@@ -15,6 +15,6 @@ export function login() {
 }
 
 export function logout() {
-  httpClient.get('/auth/logout').then(data => console.log('loggedout from server', data));
+  httpClient.post('/auth/logout').then(data => console.log('loggedout from server', data));
   loginStore.dispatch({type: 'LOGGED_OUT', payload: {userType: 'doc'}});
 }
