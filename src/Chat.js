@@ -1,13 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import useWebSocket from 'react-use-websocket';
+import io from 'socket.io-client';
 import './Chat.css';
 import { addNotification } from './notificationReducer';
 import { formatDuration, getHashCode, intToHSL } from './util/util';
+import { backendServerUrl } from './util/backend-urls';
 
 
 
 export default function Chat() {
   const [myUserid, setMyUserid] = useState('A');
+  const [chatroom, setChatroom] = useState('Room1');
+  const [socket, setSocket] = useState(null);
+
   const scrollBottom = useRef(null);
   const msgRef = useRef(null);
   const wsconn = useRef(null);
@@ -35,6 +40,39 @@ export default function Chat() {
 
   ]);
 
+  useEffect(() => {
+    console.log('setting socketio Socket')
+    const newSocket = io(`${backendServerUrl}`);
+    setSocket(newSocket);
+    return () => newSocket.close();
+  }, [setSocket]);
+  useEffect(() => {
+    if (!socket) {
+      console.log('socket still not initialized')
+      return;
+    }
+    const messageListener = (message) => {
+      addChats(message.value);
+    };
+
+    const deleteMessageListener = (messageID) => {
+      console.log('TODO: delete chats', messageID)
+    };
+
+    socket.on('message', messageListener);
+    socket.on('deleteMessage', deleteMessageListener);
+    socket.emit('getMessages');
+
+    return () => {
+      socket.off('message', messageListener);
+      socket.off('deleteMessage', deleteMessageListener);
+    };
+  }, [socket]);
+  useEffect(() => {
+    if (!socket) return;
+    socket.emit('subscribe', chatroom);
+    socket.emit('unsubscribe', 'room');
+  }, [chatroom])
   // const {
   //     sendMessage,
   //     lastMessage,
@@ -51,8 +89,9 @@ export default function Chat() {
     const m = JSON.parse(msg);
     setChats(ct => [...ct, { user: m.user, message: m.msg }]);
   }
-  useEffect(() => {
-    const connection = new WebSocket("wss://192.168.254.38:8443"); // wss://echo.websocket.org
+  /*useEffect(() => {
+    const webSocketUrl = 'wss://' + backendServerUrl.replace(/https?\:\/\//, '');
+    const connection = new WebSocket(`${webSocketUrl}/${chatroom}`); // wss://echo.websocket.org
     wsconn.current = connection;
     console.log(wsconn)
     connection.onopen = (event) => {
@@ -80,11 +119,12 @@ export default function Chat() {
     return () => {
       wsconn.current.close();
     }
-  }, []);
+  }, [chatroom]);*/
 
   function send() {
+    socket.emit('message', JSON.stringify({ user: myUserid, msg: msg, chatroom }));
     // sendMessage(msg);
-    wsconn.current.send(JSON.stringify({ user: myUserid, msg: msg }));
+    // wsconn.current.send(JSON.stringify({ user: myUserid, msg: msg }));
     // setChats([...chats, {user: myUserid, message: msg}]);
     setMsg('');
     msgRef.current.focus();
@@ -96,6 +136,8 @@ export default function Chat() {
       <div class="chat-container col-mx-12 d-flex flex-column">
         SetUserID:
     <input value={myUserid} onChange={(e) => setMyUserid(e.currentTarget.value)} />
+        Set Chatroom:
+    <input value={chatroom} onChange={(e) => setChatroom(e.currentTarget.value)} />
         <section className="message-list flex-grow-1">
           {chats.map((chat, key) =>
             <div className={chat.user === myUserid ? 'left' : 'right'} key={key}>
