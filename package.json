@@ -17,6 +17,7 @@
     "react-swipeable": "5.5.1",
     "react-use-websocket": "2.0.1",
     "redux": "4.0.5",
+    "socket.io-client": "^4.2.0",
     "vanillatoasts": "^1.4.0"
   },
   "scripts": {

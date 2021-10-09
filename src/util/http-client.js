@@ -3,6 +3,7 @@ import VanillaToasts from 'vanillatoasts';
 import 'vanillatoasts/vanillatoasts.css';
 // import history from './history';
 import { redirectLogout } from '../reducer/loginReducer';
+import { backendServerUrl } from './backend-urls';
 
 const TIMEOUT = 4000;
 const isHandlerEnabled = (config = {}) => (!(config.hasOwnProperty('handlerEnabled') && !config.handlerEnabled));
@@ -43,7 +44,7 @@ const successHandler = (response) => {
 
 const axiosInstance = axios.create({
   withCredentials: true,
-  baseURL: process.env.NODE_ENV === 'development' ? 'https://localhost:3000/' : 'https://remotedoc.herokuapp.com/',
+  baseURL: backendServerUrl,
 });
 
 // Add interceptors
