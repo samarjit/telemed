@@ -147,7 +147,7 @@ export default function () {
       <div className='drag-target' ref={dragTarget}></div>
       <div className='sidenav-overlay' ref={sidenavOverlay}></div>
 
-      <nav><button type="button" data-target="slide-out" className="sidenav-trigger" onClick={() => toggleMenu()}><i className="material-icons" >menu</i></button>  Nav </nav>
+      <nav id="topNav"><button type="button" data-target="slide-out" className="sidenav-trigger" onClick={() => toggleMenu()}><i className="material-icons" >menu</i></button>  Nav </nav>
       <ul id="slide-out" className="sidenav menu-open" ref={(el) => sidebar.current = el} onClick={(e) => menuClicked(e)}>
         <li>
           <div className="user-view">

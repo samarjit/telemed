@@ -5,6 +5,7 @@ import './Chat.css';
 import { addNotification } from './notificationReducer';
 import { formatDuration, getHashCode, intToHSL } from './util/util';
 import { backendServerUrl } from './util/backend-urls';
+import UserCircle from './UserCircle';
 
 
 
@@ -14,34 +15,56 @@ export default function Chat() {
   const [socket, setSocket] = useState(null);
 
   const scrollBottom = useRef(null);
-  const msgRef = useRef(null);
+  const messageListRef = useRef(null);
+  const msgTextareaRef = useRef(null);
   const wsconn = useRef(null);
   const [msg, setMsg] = useState('');
+  const [meetingusers, setMeetingUsers] = useState([
+    {
+      username: 'A',
+    },
+    {
+      username: 'B'
+    },
+    {
+      username: 'C'
+    }
+  ]);
   const [chats, setChats] = useState([
     {
-      user: 'A',
+      username: 'A',
       message: 'This is message from person AThis is message from person AThis is message from person AThis is message from person AThis is message from person A'
     },
     {
-      user: 'A',
+      username: 'A',
       message: 'This is a second message'
     },
     {
-      user: 'B',
+      username: 'B',
       message: 'This is message from person B'
     },
-    { user: 'A', message: 'Doing work' },
-    { user: 'A', message: 'Doing work' },
-    { user: 'A', message: 'Doing work' },
-    { user: 'A', message: 'Doing work' },
-    { user: 'A', message: 'Doing work' },
-    { user: 'A', message: 'Doing work' },
-    { user: 'C', message: 'Doing work' },
+    { username: 'A', message: 'Doing work' },
+    { username: 'A', message: 'Doing work' },
+    { username: 'A', message: 'Doing work' },
+    { username: 'A', message: 'Doing work' },
+    { username: 'A', message: 'Doing work' },
+    { username: 'A', message: 'Doing work' },
+    { username: 'C', message: 'Doing work' },
+    { username: 'C', message: 'Doing work' },
+    { username: 'C', message: 'Doing work' },
+    { username: 'C', message: 'Doing work' },
+    { username: 'C', message: 'Doing work' },
+    { username: 'C', message: 'Doing work' },
+    { username: 'C', message: 'Doing work' },
+    { username: 'C', message: 'Doing work' },
+    { username: 'C', message: 'Doing work2' },
 
   ]);
 
   useEffect(() => {
+    document.querySelector('.chat-container').style.height = (window.innerHeight - document.getElementById('topNav').clientHeight - 1) + 'px';
     console.log('setting socketio Socket')
+
     const newSocket = io(`${backendServerUrl}`
       // const newSocket = io(`http://localhost:5000`
       // , { transports: ['websocket'], upgrade: false }
@@ -54,11 +77,11 @@ export default function Chat() {
       console.log('socket still not initialized')
       return;
     }
-    const messageListener = (user, message) => {
+    const messageListener = (username, message) => {
       if (typeof message === 'string')
-        addChats(user, message);
+        addChats(username, message);
       else
-        addChats(user, message.msg);
+        addChats(username, message.msg);
     };
 
     const deleteMessageListener = (messageID) => {
@@ -102,7 +125,7 @@ export default function Chat() {
   function addChats(user, msg) {
     console.log(msg)
     const m = msg;//JSON.parse(msg);
-    setChats(ct => [...ct, { user: user, message: msg }]);
+    setChats(ct => [...ct, { username: user, message: msg }]);
   }
   /*useEffect(() => {
     const webSocketUrl = 'wss://' + backendServerUrl.replace(/https?\:\/\//, '');
@@ -137,15 +160,22 @@ export default function Chat() {
   }, [chatroom]);*/
 
   function send() {
-    console.log('send message', JSON.stringify({ user: myUserid, msg: msg, chatroom }))
-    socket.emit('sendMessage', JSON.stringify({ user: myUserid, msg: msg, chatroom }));
+    console.log('send message', JSON.stringify({ username: myUserid, msg: msg, chatroom }))
+    socket.emit('sendMessage', JSON.stringify({ username: myUserid, msg: msg, chatroom }));
     // sendMessage(msg);
-    // wsconn.current.send(JSON.stringify({ user: myUserid, msg: msg }));
-    // setChats([...chats, {user: myUserid, message: msg}]);
+    // wsconn.current.send(JSON.stringify({ username: myUserid, msg: msg }));
+    // setChats([...chats, {username: myUserid, message: msg}]);
     setMsg('');
-    msgRef.current.focus();
-    scrollBottom.current.scrollIntoView({ behavior: "smooth" });
+    msgTextareaRef.current.focus();
+    // scrollBottom.current.scrollIntoView({ behavior: "smooth" });
+    scrollToBottom();
   }
+  function scrollToBottom(scrollHeight = 0) {
+
+    if (messageListRef.current) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight - scrollHeight;
+    }
+  };
   function onTextareaKeyDown(event) {
     if (event.altKey === false && (event.key === "Enter" || event.key === "NumpadEnter")) {
       console.log("Enter key was pressed. Run your function.");
@@ -157,17 +187,28 @@ export default function Chat() {
   return (
     <>
       <div class="chat-container col-mx-12 d-flex flex-column">
+        <section className="meetingUsers">
+          {meetingusers.map(mtUser => <div className="userCircleWrapper">
+            <UserCircle user={{ username: mtUser.username }} />
+          </div>
+          )}
+          <div className="userCircleWrapper">
+            <div className="letterCircle addUserToMeeting">+</div>
+          </div>
+        </section>
         SetUserID:
         <input value={myUserid} onChange={(e) => setMyUserid(e.currentTarget.value)} />
         <button onClick={(e) => createUser()}>Create User</button>
         Set Chatroom:
         <input value={chatroom} onChange={(e) => setChatroom(e.currentTarget.value)} />
         <button onClick={(e) => subscribeToRoom()}>Subscribe</button>
-        <section className="message-list flex-grow-1">
+        <section className="message-list flex-grow-1" ref={messageListRef}>
           {chats.map((chat, key) =>
-            <div className={chat.user === myUserid ? 'left' : 'right'} key={key}>
-              <div className="user letterCircle text-white" style={{ backgroundColor: intToHSL(getHashCode(chat.user)) }}>{chat.user.charAt(0)}</div>
-              <aside >{chat.message}</aside>
+            <div className={chat.username === myUserid ? 'left' : 'right'} key={key}>
+              <div className="user letterCircle text-white" style={{ backgroundColor: intToHSL(getHashCode(chat.username)) }}>{chat.username.charAt(0)}</div>
+              <aside >{chat.message}
+                <div className="chatFooter">{new Date().toLocaleTimeString()}</div>
+              </aside>
             </div>
           )}
           <div id="chat"></div>
@@ -175,9 +216,9 @@ export default function Chat() {
           <div ref={scrollBottom}>&nbsp;</div>
         </section>
         <section id="chat-form" className="d-flex flex-shrink-0 justify-content-end">
-          <textarea placeholder="Type a message" className="flex-grow-1" name="msg" rows="1" onChange={(e) => setMsg(e.currentTarget.value)} value={msg} ref={msgRef} onKeyDown={(e) => onTextareaKeyDown(e)}></textarea>
+          <textarea placeholder="Type a message" className="flex-grow-1" name="msg" rows="1" onChange={(e) => setMsg(e.currentTarget.value)} value={msg} ref={msgTextareaRef} onKeyDown={(e) => onTextareaKeyDown(e)}></textarea>
           <button type="button" class="btn btn-primary flex-shrink-0 " onClick={send}>
-            <i className="material-icons rotate-45">send</i>
+            <i className="material-icons ">send</i>
           </button>
         </section>
       </div>
