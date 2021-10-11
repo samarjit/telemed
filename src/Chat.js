@@ -6,8 +6,10 @@ import { addNotification } from './notificationReducer';
 import { formatDuration, getHashCode, intToHSL } from './util/util';
 import { backendServerUrl } from './util/backend-urls';
 import UserCircle from './UserCircle';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
-
+dayjs.extend(relativeTime);
 
 export default function Chat() {
   const [myUserid, setMyUserid] = useState('A');
@@ -33,31 +35,34 @@ export default function Chat() {
   const [chats, setChats] = useState([
     {
       username: 'A',
-      message: 'This is message from person AThis is message from person AThis is message from person AThis is message from person AThis is message from person A'
+      message: 'This is message from person AThis is message from person AThis is message from person AThis is message from person AThis is message from person A',
+      createdAt: '2021-10-09T04:47:30.077Z'
     },
     {
       username: 'A',
-      message: 'This is a second message'
+      message: 'This is a second message',
+      createdAt: '2021-10-10T04:47:30.077Z'
     },
     {
       username: 'B',
-      message: 'This is message from person B'
+      message: 'This is message from person B',
+      createdAt: '2021-10-10T04:47:30.077Z'
     },
-    { username: 'A', message: 'Doing work' },
-    { username: 'A', message: 'Doing work' },
-    { username: 'A', message: 'Doing work' },
-    { username: 'A', message: 'Doing work' },
-    { username: 'A', message: 'Doing work' },
-    { username: 'A', message: 'Doing work' },
-    { username: 'C', message: 'Doing work' },
-    { username: 'C', message: 'Doing work' },
-    { username: 'C', message: 'Doing work' },
-    { username: 'C', message: 'Doing work' },
-    { username: 'C', message: 'Doing work' },
-    { username: 'C', message: 'Doing work' },
-    { username: 'C', message: 'Doing work' },
-    { username: 'C', message: 'Doing work' },
-    { username: 'C', message: 'Doing work2' },
+    { username: 'A', message: 'Doing work', createdAt: '2021-10-10T15:47:30.077Z' },
+    { username: 'A', message: 'Doing work', createdAt: '2021-10-10T20:47:30.077Z' },
+    { username: 'A', message: 'Doing work', createdAt: '2021-10-10T44:47:30.077Z' },
+    { username: 'A', message: 'Doing work', createdAt: '2021-10-10T45:47:30.077Z' },
+    { username: 'A', message: 'Doing work', createdAt: '2021-10-11T04:47:30.077Z' },
+    { username: 'A', message: 'Doing work', createdAt: '2021-10-11T04:47:30.077Z' },
+    { username: 'C', message: 'Doing work', createdAt: '2021-10-11T04:47:30.077Z' },
+    { username: 'C', message: 'Doing work', createdAt: '2021-10-11T04:47:30.077Z' },
+    { username: 'C', message: 'Doing work', createdAt: '2021-10-11T04:47:30.077Z' },
+    { username: 'C', message: 'Doing work', createdAt: '2021-10-11T04:47:30.077Z' },
+    { username: 'C', message: 'Doing work', createdAt: '2021-10-11T04:47:30.077Z' },
+    { username: 'C', message: 'Doing work', createdAt: '2021-10-11T04:47:30.077Z' },
+    { username: 'C', message: 'Doing work', createdAt: '2021-10-11T04:47:30.077Z' },
+    { username: 'C', message: 'Doing work', createdAt: '2021-10-11T04:47:30.077Z' },
+    { username: 'C', message: 'Doing work2', createdAt: '2021-10-11T04:47:30.077Z' },
 
   ]);
 
@@ -126,6 +131,7 @@ export default function Chat() {
     console.log(msg)
     const m = msg;//JSON.parse(msg);
     setChats(ct => [...ct, { username: user, message: msg }]);
+    scrollToBottom();
   }
   /*useEffect(() => {
     const webSocketUrl = 'wss://' + backendServerUrl.replace(/https?\:\/\//, '');
@@ -168,7 +174,6 @@ export default function Chat() {
     setMsg('');
     msgTextareaRef.current.focus();
     // scrollBottom.current.scrollIntoView({ behavior: "smooth" });
-    scrollToBottom();
   }
   function scrollToBottom(scrollHeight = 0) {
 
@@ -187,13 +192,23 @@ export default function Chat() {
   return (
     <>
       <div class="chat-container col-mx-12 d-flex flex-column">
-        <section className="meetingUsers">
-          {meetingusers.map(mtUser => <div className="userCircleWrapper">
-            <UserCircle user={{ username: mtUser.username }} />
+        <section className="meetingHeader">
+          <div className="meetingUsers">
+            {meetingusers.map(mtUser => <div className="userCircleWrapper">
+              <UserCircle user={{ username: mtUser.username }} />
+            </div>
+            )}
+            <div className="userCircleWrapper">
+              <div className="letterCircle addUserToMeeting">+</div>
+            </div>
           </div>
-          )}
-          <div className="userCircleWrapper">
-            <div className="letterCircle addUserToMeeting">+</div>
+          <div className="videoCall">
+            <span class="material-icons">
+              mic
+            </span>
+            <span class="material-icons">
+              videocam
+            </span>
           </div>
         </section>
         SetUserID:
@@ -203,16 +218,18 @@ export default function Chat() {
         <input value={chatroom} onChange={(e) => setChatroom(e.currentTarget.value)} />
         <button onClick={(e) => subscribeToRoom()}>Subscribe</button>
         <section className="message-list flex-grow-1" ref={messageListRef}>
-          {chats.map((chat, key) =>
+          <div id="chat">{chats.map((chat, key) =>
             <div className={chat.username === myUserid ? 'left' : 'right'} key={key}>
               <div className="user letterCircle text-white" style={{ backgroundColor: intToHSL(getHashCode(chat.username)) }}>{chat.username.charAt(0)}</div>
               <aside >{chat.message}
-                <div className="chatFooter">{new Date().toLocaleTimeString()}</div>
+                <div className="chatFooter">{dayjs(chat.createdAt).format('MMM D h:mm a')}</div>
               </aside>
+
             </div>
           )}
-          <div id="chat"></div>
 
+          </div>
+          <div className="msgSeparator">Hello</div>
           <div ref={scrollBottom}>&nbsp;</div>
         </section>
         <section id="chat-form" className="d-flex flex-shrink-0 justify-content-end">

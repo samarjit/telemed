@@ -20,6 +20,7 @@ body {
 }
 
 .left {
+  float: none;
   display: flex;
   flex-basis: 80%;
   width: 80%;
@@ -68,11 +69,13 @@ div.user {
   font-size: xx-small;
   color: grey;
   text-align: end;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .right .chatFooter {
   font-size: xx-small;
   color: grey;
+  font-family: Arial, Helvetica, sans-serif;
 }
 #chat-form {
   /* position: fixed; */
@@ -107,9 +110,40 @@ div.user {
 .user-circle  {
   /* border: 1px solid whitesmoke;  */
 }
+
+.meetingHeader {
+  display: flex;
+  justify-content: space-between;
+}
+.videoCall {
+  
+}
+
 .addUserToMeeting{
   background-color: white;
   border: 1px dashed grey; 
   font-size: 1.5em;
   padding-top:-1px;
+}
+
+.msgSeparator {
+  color: #6EAAD8;
+  font-size: .8em;
+  font-family: Helvetica Neue,Segoe UI,Helvetica,Arial,sans-serif;
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+.msgSeparator::before,.msgSeparator::after {
+  content: "";
+  background-color: #6EAAD8;
+  display: block;
+  flex-grow: 1;
+  height: 1px;
+  
+  margin: 0 1em 0 1em;
 }
