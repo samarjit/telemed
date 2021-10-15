@@ -8,8 +8,10 @@ import { backendServerUrl } from './util/backend-urls';
 import UserCircle from './UserCircle';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import './assets/spinner.css';
 
 dayjs.extend(relativeTime);
+let observer;
 
 export default function Chat() {
   const [myUserid, setMyUserid] = useState('A');
@@ -75,6 +77,19 @@ export default function Chat() {
       // , { transports: ['websocket'], upgrade: false }
     );
     setSocket(newSocket);
+
+    const observer = new IntersectionObserver(
+      (entry) => {
+        console.log('top reached, load history now', entry[0].isIntersecting);
+      },
+      {
+        root: document.querySelector('.message-list'),
+        rootMargin: '0px',
+        threshold: 0,
+      }
+    );
+    observer.observe(document.querySelector('.topMarker'));
+
     return () => newSocket.close();
   }, []);
   useEffect(() => {
@@ -217,16 +232,21 @@ export default function Chat() {
         Set Chatroom:
         <input value={chatroom} onChange={(e) => setChatroom(e.currentTarget.value)} />
         <button onClick={(e) => subscribeToRoom()}>Subscribe</button>
+        <div style={{ position: 'relative' }}>
+          <div className="nb-spinner" style={{ position: 'relative', margin: '1em auto' }} ></div>
+        </div>
         <section className="message-list flex-grow-1" ref={messageListRef}>
-          <div id="chat">{chats.map((chat, key) =>
-            <div className={chat.username === myUserid ? 'left' : 'right'} key={key}>
-              <div className="user letterCircle text-white" style={{ backgroundColor: intToHSL(getHashCode(chat.username)) }}>{chat.username.charAt(0)}</div>
-              <aside >{chat.message}
-                <div className="chatFooter">{dayjs(chat.createdAt).format('MMM D h:mm a')}</div>
-              </aside>
+          <div id="chat">
+            <div className="topMarker"></div>
+            {chats.map((chat, key) =>
+              <div className={chat.username === myUserid ? 'left' : 'right'} key={key}>
+                <div className="user letterCircle text-white" style={{ backgroundColor: intToHSL(getHashCode(chat.username)) }}>{chat.username.charAt(0)}</div>
+                <aside >{chat.message}
+                  <div className="chatFooter">{dayjs(chat.createdAt).format('MMM D h:mm a')}</div>
+                </aside>
 
-            </div>
-          )}
+              </div>
+            )}
 
           </div>
           <div className="msgSeparator">Hello</div>
