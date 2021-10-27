@@ -63,7 +63,7 @@ export default function () {
     // // dragTarget.current.on('touchmove', _onDrag)
     // // dragTarget.current.on('touchstop', _onDragStop)
 
-    
+
     return () => {
 
     }
@@ -72,9 +72,9 @@ export default function () {
   function passwordCheck() {
     const password = document.querySelector('.password').value;
     const repassword = document.querySelector('#retypepasswd').value;
-    if (password !== repassword){
+    if (password !== repassword) {
       document.querySelector('.error_retypepasswd').innerHTML = 'passwords do not match';
-    } else{
+    } else {
       document.querySelector('.error_retypepasswd').innerHTML = '';
     }
   }
@@ -91,7 +91,7 @@ export default function () {
     httpClient.post('/auth/login', { username, password })
       .then((res) => {
         console.log('res', res)
-        login();
+        login(res.data.profile);
         // getReduxStore().dispatch({ type: 'LOGIN_SUCCESS', payload: res.data.profile });
         // history.push('/home');
       })
@@ -106,13 +106,13 @@ export default function () {
     const username = document.querySelector('.loginEmail').value;
     const password = document.querySelector('.password').value;
     const repassword = document.querySelector('#retypepasswd').value;
-    if (password === repassword){
-       httpClient.post('/auth/register', { 
-         username, password,
-       }).then((data) => {
-         console.log('signup res', data);
-         login();
-       }).catch((err) => {
+    if (password === repassword) {
+      httpClient.post('/auth/register', {
+        username, password,
+      }).then((data) => {
+        console.log('signup res', data);
+        login();
+      }).catch((err) => {
         if (err.response && err.response.data) {
           this.setState({ error: err.response.data.reason });
         }
@@ -156,20 +156,20 @@ export default function () {
             <div className=" ">
               <div class="input-field col s6">
                 <label className=" " for="userid" >User Id</label>
-                <input type="email" name="userid" id="userid" className="loginEmail"/>
+                <input type="email" name="userid" id="userid" className="loginEmail" />
               </div>
               <div class="input-field col s6">
                 <label for="fullName" className=" " >Full Name</label>
-                <input type="text" name="Full Name" id="fullName" className="fullName"/>
+                <input type="text" name="Full Name" id="fullName" className="fullName" />
               </div>
               <div class="input-field col s6">
                 <label for="passwd">Password</label>
-                <input type="password" id="passwd" className="password" onKeyUp={()=> passwordCheck()}/>
+                <input type="password" id="passwd" className="password" onKeyUp={() => passwordCheck()} />
               </div>
 
               <div class="input-field col">
                 <label for="retypepasswd">Retype Password</label>
-                <input type="password" id="retypepasswd" onKeyUp={()=> passwordCheck()} />
+                <input type="password" id="retypepasswd" onKeyUp={() => passwordCheck()} />
                 <span className="error error_retypepasswd" ></span>
               </div>
 

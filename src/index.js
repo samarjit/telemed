@@ -13,6 +13,7 @@ import DoctorHome from './DoctorHome';
 import PatientHome from './PatientHome';
 import Sidemenu from './SidemenuTest';
 import Lander from './Lander';
+import { Provider } from 'react-redux'
 
 import { loginStore } from './reducer/loginReducer';
 
@@ -33,6 +34,7 @@ class App extends Component {
     }
     loginStore.subscribe(() => {
       const loggedIn = loginStore.getState().loggedIn;
+      if (this.state.loggedIn == loggedIn) return;
       this.setState({ loggedIn });
       console.log('index.js -- login -- ', loginStore.getState());
       if (loggedIn) {
@@ -45,18 +47,20 @@ class App extends Component {
   render() {
     return (
       <div>
-        {this.state.loggedIn && <Sidemenu />}
-        <Router>
+        <Provider store={loginStore}>
+          {this.state.loggedIn && <Sidemenu />}
+          <Router>
 
-          <Route component={Lander} path="/lander" />
-          <Route component={DoctorHome} path="/doctorhome" />
-          <Route component={PatientHome} path="/patienthome" />
-          <Route component={Chat} path="/chat" />
-          <Route component={Appointment} path="/appointment" />
+            <Route component={Lander} path="/lander" />
+            <Route component={DoctorHome} path="/doctorhome" />
+            <Route component={PatientHome} path="/patienthome" />
+            <Route component={Chat} path="/chat/:roomId" />
+            <Route component={Appointment} path="/appointment" />
 
-          <Route component={Notification} path='/notification' />
-        </Router>
-        <Toast path="/toast" />
+            <Route component={Notification} path='/notification' />
+          </Router>
+          <Toast path="/toast" />
+        </Provider>
       </div>
     );
   }

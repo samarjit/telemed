@@ -161,7 +161,7 @@ export default function () {
         </li>
         <li><a href="#/doctorhome"><i className="material-icons">home</i>DoctorHome</a></li>
         <li><a href="#/patienthome"><i className="material-icons">home</i> PatientHome</a></li>
-        <li><a href="#/chat"><i class="material-icons">forum</i> Chat</a></li>
+        <li><a href="#/chat/1"><i class="material-icons">forum</i> Chat</a></li>
         <li><a href="#/appointment"><i class="material-icons">perm_contact_calendar</i>appointment</a></li>
         <li><div className="divider"></div></li>
         <li onClick={(e) => logout()}><a href="#/lander"><i className="material-icons">logout</i>Logout</a></li>

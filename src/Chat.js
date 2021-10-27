@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 import io from 'socket.io-client';
 import './Chat.css';
@@ -8,6 +9,10 @@ import { backendServerUrl } from './util/backend-urls';
 import UserCircle from './UserCircle';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import TypingIndicator from './TypingIndicator';
+// import { useSelector } from 'react-redux';
+import { useSelector, loginStore } from './reducer/loginReducer';
+
 import './assets/spinner.css';
 
 dayjs.extend(relativeTime);
@@ -15,17 +20,29 @@ let observer;
 
 export default function Chat() {
   const [myUserid, setMyUserid] = useState('A');
-  const [chatroom, setChatroom] = useState('Room1');
+  const { roomId } = useParams();
+  const [chatroom, setChatroom] = useState(roomId);
   const [socket, setSocket] = useState(null);
 
   const scrollBottom = useRef(null);
   const messageListRef = useRef(null);
   const msgTextareaRef = useRef(null);
   const wsconn = useRef(null);
+  const isLoadingHistory = useRef(false);
+  console.log('rerender')
+  const profile = useSelector(state => (state) ? state.profile : null);
+  useEffect(() => {
+    if (profile) setMyUserid(profile.username);
+
+  }, [profile]);
+  const [isLoading, setIsLoading] = useState(false);
   const [msg, setMsg] = useState('');
   const [meetingusers, setMeetingUsers] = useState([
     {
       username: 'A',
+      firstName: '',
+      lastName: '',
+      avatarUrl: ''
     },
     {
       username: 'B'
@@ -74,34 +91,77 @@ export default function Chat() {
 
     const newSocket = io(`${backendServerUrl}`
       // const newSocket = io(`http://localhost:5000`
-      // , { transports: ['websocket'], upgrade: false }
+      , {
+        transports: ['websocket'], upgrade: false,
+        auth: (cb) => {
+          cb({
+            token: 'abc'
+          })
+        }
+      }
     );
     setSocket(newSocket);
 
+    const intersectionOptions = {
+      root: document.querySelector('.message-list'),
+      rootMargin: '0px',
+      threshold: 0,
+    };
     const observer = new IntersectionObserver(
       (entry) => {
-        console.log('top reached, load history now', entry[0].isIntersecting);
+        console.log('top reached, load history now', entry[0].isIntersecting, messageListRef.current.scrollHeight,
+          messageListRef.current.clientHeight, messageListRef.current.scrollTop);
+        if (entry[0].isIntersecting && entry[0].intersectionRatio > 0) {
+          isLoadingHistory.current = true;
+          setIsLoading(true);
+          setTimeout(() => {
+            setChats((ct) => [{ username: 'Q', message: 'lorem ipsum', createdAt: new Date().toString() }, ...ct]);
+            messageListRef.current.scrollTop = 0;
+            setIsLoading(false);
+            isLoadingHistory.current = false;
+          }, 1000)
+        }
       },
-      {
-        root: document.querySelector('.message-list'),
-        rootMargin: '0px',
-        threshold: 0,
-      }
+      intersectionOptions
     );
-    observer.observe(document.querySelector('.topMarker'));
+
+    messageListRef.current.addEventListener('scroll', () => {
+      console.log('mounting scroll observer');
+      observer.observe(document.querySelector('.topMarker'));
+    }, { once: true });
+    // setTimeout(() => observer.observe(document.querySelector('.topMarker'))
+    //   , 1000);
 
     return () => newSocket.close();
   }, []);
+
+  useEffect(() => {
+    if (!isLoadingHistory.current) {
+      console.log('isLoadingHistory.current', isLoadingHistory.current)
+      scrollToBottom()
+    }
+  }, [chats]);
+
   useEffect(() => {
     if (!socket) {
       console.log('socket still not initialized')
       return;
     }
+    console.log('socket initialized now');
+    if (roomId) {
+      setChatroom(roomId);
+    }
+    subscribeToRoom();
+    // get initial messages
+    console.log('getting all message', chatroom)
+    socket.emit('getMessages', chatroom);
+
     const messageListener = (username, message) => {
+      if (!message) return;
       if (typeof message === 'string')
         addChats(username, message);
       else
-        addChats(username, message.msg);
+        addChats(username, message.msg, message.createdAt);
     };
 
     const deleteMessageListener = (messageID) => {
@@ -110,13 +170,16 @@ export default function Chat() {
 
     socket.on('updateChat', messageListener);
     socket.on('deleteMessage', deleteMessageListener);
-    // socket.emit('getMessages');
+    socket.on('chatroomDetails', (data) => {
+      setMeetingUsers(data.users)
+    })
+    // socket.emit('getMessages');  
 
     return () => {
       socket.off('updateChat', messageListener);
       socket.off('deleteMessage', deleteMessageListener);
     };
-  }, [socket]);
+  }, [socket, roomId]);
 
   // useEffect(() => {
   //   if (!socket) return;
@@ -142,10 +205,10 @@ export default function Chat() {
   //     }
   //   });
 
-  function addChats(user, msg) {
+  function addChats(user, msg, createdAt) {
     console.log(msg)
     const m = msg;//JSON.parse(msg);
-    setChats(ct => [...ct, { username: user, message: msg }]);
+    setChats(ct => [...ct, { username: user, message: msg, createdAt }]);
     scrollToBottom();
   }
   /*useEffect(() => {
@@ -156,25 +219,25 @@ export default function Chat() {
     connection.onopen = (event) => {
       console.log("WebSocket is open now.");
     };
-
+  
     connection.onclose = (event) => {
       console.log("WebSocket is closed now.");
     };
-
+  
     connection.onerror = (event) => {
       console.error("WebSocket error observed:", event);
     };
-
+  
     connection.onmessage = (event) => {
       // append received message from the server to the DOM element 
       // const chat = document.querySelector("#chat");
       // chat.innerHTML += event.data;
       // console.log(chats)
       addChats(event.data)
-
+  
     };
     scrollBottom.current.scrollIntoView({ behavior: "smooth" })
-
+  
     return () => {
       wsconn.current.close();
     }
@@ -206,11 +269,11 @@ export default function Chat() {
   }
   return (
     <>
-      <div class="chat-container col-mx-12 d-flex flex-column">
+      <div className="chat-container col-mx-12 d-flex flex-column">
         <section className="meetingHeader">
           <div className="meetingUsers">
-            {meetingusers.map(mtUser => <div className="userCircleWrapper">
-              <UserCircle user={{ username: mtUser.username }} />
+            {meetingusers.map((mtUser, key) => <div className="userCircleWrapper">
+              <UserCircle user={{ username: mtUser.username }} key={key} />
             </div>
             )}
             <div className="userCircleWrapper">
@@ -218,10 +281,10 @@ export default function Chat() {
             </div>
           </div>
           <div className="videoCall">
-            <span class="material-icons">
+            <span className="material-icons">
               mic
             </span>
-            <span class="material-icons">
+            <span className="material-icons" style={{ cursor: 'pointer' }} onClick="">
               videocam
             </span>
           </div>
@@ -232,9 +295,10 @@ export default function Chat() {
         Set Chatroom:
         <input value={chatroom} onChange={(e) => setChatroom(e.currentTarget.value)} />
         <button onClick={(e) => subscribeToRoom()}>Subscribe</button>
-        <div style={{ position: 'relative' }}>
+        {isLoading && <div style={{ position: 'relative' }}>
           <div className="nb-spinner" style={{ position: 'relative', margin: '1em auto' }} ></div>
         </div>
+        }
         <section className="message-list flex-grow-1" ref={messageListRef}>
           <div id="chat">
             <div className="topMarker"></div>
@@ -242,7 +306,7 @@ export default function Chat() {
               <div className={chat.username === myUserid ? 'left' : 'right'} key={key}>
                 <div className="user letterCircle text-white" style={{ backgroundColor: intToHSL(getHashCode(chat.username)) }}>{chat.username.charAt(0)}</div>
                 <aside >{chat.message}
-                  <div className="chatFooter">{dayjs(chat.createdAt).format('MMM D h:mm a')}</div>
+                  <div className="chatFooter" title={new Date(chat.createdAt).toLocaleString()}>{dayjs(chat.createdAt).format('MMM D h:mm a')}</div>
                 </aside>
 
               </div>
@@ -250,11 +314,12 @@ export default function Chat() {
 
           </div>
           <div className="msgSeparator">Hello</div>
+          <TypingIndicator />
           <div ref={scrollBottom}>&nbsp;</div>
         </section>
         <section id="chat-form" className="d-flex flex-shrink-0 justify-content-end">
           <textarea placeholder="Type a message" className="flex-grow-1" name="msg" rows="1" onChange={(e) => setMsg(e.currentTarget.value)} value={msg} ref={msgTextareaRef} onKeyDown={(e) => onTextareaKeyDown(e)}></textarea>
-          <button type="button" class="btn btn-primary flex-shrink-0 " onClick={send}>
+          <button type="button" className="btn btn-primary flex-shrink-0 " onClick={send}>
             <i className="material-icons ">send</i>
           </button>
         </section>
